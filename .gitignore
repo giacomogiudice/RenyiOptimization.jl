@@ -3,11 +3,10 @@
 
 # Whitelisted files go here
 !.gitignore
+!.github
 !README.md
 !Project.toml
 
-!examples
-!models
 !src
 !test
 

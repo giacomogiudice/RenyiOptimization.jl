@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest # No binaries in project, so just run on linux
+    strategy:
+      matrix:
+        julia-version: ['1.4', 'nightly']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{matrix.julia-version}}
+      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-runtest@latest
+      - uses: julia-actions/julia-uploadcodecov@latest
+        env:
+          JULIA_NUM_THREADS: 4
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}} 
