@@ -1,0 +1,18 @@
+name = "RenyiOptimization"
+uuid = "25bb2d42-3a55-40f8-a5dc-ad1374488a1b"
+authors = ["Giacomo Giudice <giacomo.giudice@mail.com>"]
+version = "0.1.0"
+
+[deps]
+KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
+OptimKit = "77e91f04-9b3b-57a6-a776-40b61faaebe0"
+TensorKit = "07d1fe3e-3e46-537d-9eac-e9e13d0d4cec"
+TensorKitManifolds = "11fa318c-39cb-4a83-b1ed-cdc7ba1e3684"
+
+[extras]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["LinearAlgebra", "Random", "Test"]

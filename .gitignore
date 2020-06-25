@@ -1,0 +1,15 @@
+# Ignore everything at root level by default
+/*
+
+# Whitelisted files go here
+!.gitignore
+!README.md
+!Project.toml
+
+!examples
+!models
+!src
+!test
+
+# Other ignore rules
+**/.DS_Store
