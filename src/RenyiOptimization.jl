@@ -5,11 +5,12 @@ export leftvirtual, rightvirtual, physical, ancillar, isleftgauged
 export lefttransfer, righttransfer, leftdoubletransfer, rightdoubletransfer
 export singlefixedpoints, doublefixedpoints, energyfixedpoints
 export expectationvalue, two_point_correlations
-# export renyioptimize
-export udot, ⊙, rinv
+export renyioptimize
+export udot, ⊙, rinv, paulimatrices
 
 using KrylovKit, OptimKit
 using TensorKit, TensorKitManifolds
+import TensorKitManifolds.Grassmann
 
 # Typedefs of the different tensors used
 const LocalOperator{S} = AbstractTensorMap{S,1,1}
@@ -40,7 +41,7 @@ end
 include("transfers.jl")
 include("fixedpoints.jl")
 include("expectationvalues.jl")
-# include("optimizer.jl")
+include("optimization.jl")
 include("auxiliary.jl")
 
 end
