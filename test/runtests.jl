@@ -127,4 +127,3 @@ end
     @test output.ε ≈ 0 atol = testtol
     @test norm(two_point_correlations(O, O, AL, 1:10, ρL, ρR) .- expectationvalue(O, AL, ρL, ρR)^2, Inf) ≈ 0 atol = testtol
 end
-
