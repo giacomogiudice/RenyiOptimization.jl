@@ -7,12 +7,11 @@ import OptimKit
 # Set seed for reproducibility
 Random.seed!(42)
 
-types = (Float32, Float64, ComplexF32, ComplexF64)
-phys_spaces = (ℂ^2, ℂ^4, ℂ^3)
-virt_spaces = (ℂ^2, ℂ^10, ℂ^4)
-anc_spaces = (ℂ^2, ℂ^4, ℂ^5)
+phys_spaces = (ℂ^2, ℂ^3, ℂ^2)
+virt_spaces = (ℂ^2, ℂ^5, ℂ^4)
+anc_spaces = (ℂ^2, ℂ^3, ℂ^3)
 
-@testset "Fixed points tests for type $(T)" for T in types
+@testset "Fixed points tests for type $(T)" for T in (Float32, Float64, ComplexF32, ComplexF64)
     tol = 10*eps(real(T))
     testtol = 2*tol
 
@@ -62,7 +61,8 @@ anc_spaces = (ℂ^2, ℂ^4, ℂ^5)
     end 
 end
 
-@testset "Manifold tests for type $(T)" for T in types
+# Finite differences tests fail miserably with single-precision
+@testset "Manifold tests for type $(T)" for T in (Float64, ComplexF64)
     tol = 10*eps(real(T))
     testtol = 10*tol
 
@@ -102,9 +102,10 @@ end
         end
 
         @testset "Finite differences" begin
-            αs = range(1e-4, 1e-1; length = 400)
+            x = initialize(AL, H; tol = tol)
+            αs = 10.0.^(-10:-4)
             αs, fs, dfs1, dfs2 = @inferred OptimKit.optimtest(fg, x; alpha = αs, retract = (x, ξ, α) -> retract(x, ξ, α; tol = tol), inner = inner)
-            @test norm(dfs1 - dfs2, Inf) ≈ 0 atol = 1e-2    # This one doesn't work very well
+            @test norm(dfs1 - dfs2, Inf) ≈ 0 atol = 1e-5    # Not very robust
         end
     end
 end
