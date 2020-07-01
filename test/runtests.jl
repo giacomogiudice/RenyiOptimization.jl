@@ -109,3 +109,22 @@ end
         end
     end
 end
+
+@testset "Optimization tests for type $(T)" for T in (Float64, ComplexF64)
+    tol = √eps(real(T))
+    testtol = tol
+    virt = phys = anc = ℂ^2
+    O = TensorMap(randn, T, phys ← phys)
+    O = O + O'
+    H = TensorMap(zeros, T, phys^2 ← phys^2)
+    AL = TensorMap(randisometry, T, virt ⊗ phys ⊗ anc ← virt)
+    alg = OptimKit.LBFGS(20; maxiter = 1000, verbosity = 0, gradtol = tol)
+    solvertol = 1e-3*tol
+    AL, output, ρL, ρR, _ = renyioptimize(1, H, AL, alg; tol = solvertol)
+
+    @test output.f ≈ log(0.5) atol = testtol
+    @test output.η ≈ 0.5 atol = testtol
+    @test output.ε ≈ 0 atol = testtol
+    @test norm(two_point_correlations(O, O, AL, 1:10, ρL, ρR) .- expectationvalue(O, AL, ρL, ρR)^2, Inf) ≈ 0 atol = testtol
+end
+

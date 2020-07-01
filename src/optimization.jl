@@ -1,6 +1,6 @@
-function renyioptimize(β::Real, H::TwoSiteOperator{S}, A::PurificationTensor{S}, alg::OptimKit.OptimizationAlgorithm; expand = nothing, kwargs...) where S
+function renyioptimize(β::Real, H::TwoSiteOperator{S}, AL::PurificationTensor{S}, alg::OptimKit.OptimizationAlgorithm; kwargs...) where S
     # Construct initial object
-    x = initialize(AL, β*H; trunc = expand, kwargs...)
+    x = initialize(AL, β*H; kwargs...)
     # Fire up the optimization
     x, fx, _, gradhistory = optimize(fg, x, alg;
                                     retract = (x, Δ, α) -> retract(x, Δ, α; kwargs...),
@@ -13,7 +13,7 @@ function renyioptimize(β::Real, H::TwoSiteOperator{S}, A::PurificationTensor{S}
     return AL, (f = fx, η = η, ε = ε), ρL, ρR, gradhistory
 end
 
-function initialize(AL::PurificationTensor{S}, H::TwoSiteOperator{S}; expand = nothing, kwargs...) where S
+function initialize(AL::PurificationTensor{S}, H::TwoSiteOperator{S}; kwargs...) where S
     # Compute initial fixed points
     ρL, ρR, ζ, ∇ζ = singlefixedpoints(AL; kwargs...)
     ΣL, ΣR, η, ∇η = doublefixedpoints(AL; kwargs...)
@@ -21,20 +21,6 @@ function initialize(AL::PurificationTensor{S}, H::TwoSiteOperator{S}; expand = n
 
     # Pack into x object
     x = (AL, H, ρL, ρR, ζ, ∇ζ, ΣL, ΣR, η, ∇η, HL, HR, ε, ∇ε)
-
-    if !isnothing(expand)
-        _, Δ = fg(x)
-        # Δ = TensorMap(rand, eltype(AL), codomain(AL) ← domain(AL))
-
-        E, _, _ = tsvd!(Δ[]; trunc = expand)
-        V = domain(E)
-        AL = catdomain(AL, E)
-        AL = permute(AL, (1,), (2,3,4))
-        E = TensorMap(zeros, eltype(AL), V ← domain(AL))
-        AL = permute(catcodomain(AL, E), (1,2,3), (4,))
-
-        x = initialize(AL, H)
-    end
     return x
 end
 
