@@ -120,10 +120,20 @@ end
     AL = TensorMap(randisometry, T, virt ⊗ phys ⊗ anc ← virt)
     alg = OptimKit.LBFGS(20; maxiter = 1000, verbosity = 0, gradtol = tol)
     solvertol = 1e-3*tol
-    AL, output, ρL, ρR, _ = renyioptimize(1, H, AL, alg; tol = solvertol)
+    @testset "Optimization without preconditioner" begin
+        AL, output, ρL, ρR, _ = renyioptimize(1, H, AL, alg; preconditioner = false, tol = solvertol)
+        @test output.f ≈ log(0.5) atol = testtol
+        @test output.η ≈ 0.5 atol = testtol
+        @test output.ε ≈ 0 atol = testtol
+        @test norm(two_point_correlations(O, O, AL, 1:10, ρL, ρR) .- expectationvalue(O, AL, ρL, ρR)^2, Inf) ≈ 0 atol = testtol
+    end
 
-    @test output.f ≈ log(0.5) atol = testtol
-    @test output.η ≈ 0.5 atol = testtol
-    @test output.ε ≈ 0 atol = testtol
-    @test norm(two_point_correlations(O, O, AL, 1:10, ρL, ρR) .- expectationvalue(O, AL, ρL, ρR)^2, Inf) ≈ 0 atol = testtol
+    @testset "Optimization with preconditioner" begin
+        AL, output, ρL, ρR, _ = renyioptimize(1, H, AL, alg; preconditioner = true, tol = solvertol)
+        @test output.f ≈ log(0.5) atol = testtol
+        @test output.η ≈ 0.5 atol = testtol
+        @test output.ε ≈ 0 atol = testtol
+        @test norm(two_point_correlations(O, O, AL, 1:10, ρL, ρR) .- expectationvalue(O, AL, ρL, ρR)^2, Inf) ≈ 0 atol = testtol
+    end
+
 end

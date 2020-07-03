@@ -1,4 +1,4 @@
-function renyioptimize(β::Real, H::TwoSiteOperator{S}, AL::PurificationTensor{S}, alg::OptimKit.OptimizationAlgorithm; kwargs...) where S
+function renyioptimize(β::Real, H::TwoSiteOperator{S}, AL::PurificationTensor{S}, alg::OptimKit.OptimizationAlgorithm; preconditioner = false, kwargs...) where S
     # Construct initial object
     x = initialize(AL, β*H; kwargs...)
     # Fire up the optimization
@@ -6,6 +6,7 @@ function renyioptimize(β::Real, H::TwoSiteOperator{S}, AL::PurificationTensor{S
                                     retract = (x, Δ, α) -> retract(x, Δ, α; kwargs...),
                                     inner = inner,
                                     transport! = transport!,
+                                    precondition = preconditioner == true ? precondition : OptimKit._precondition,
                                     isometrictransport = true)
 
     # Unpack x object
@@ -61,3 +62,10 @@ end
 transport(Θ, x, Δ, α, x′) = Grassmann.transport(Θ, first(x), Δ, α, first(x′))
 transport!(Θ, x, Δ, α, x′) = Grassmann.transport!(Θ, first(x), Δ, α, first(x′))
 
+function precondition(x, Δ)
+    AL, H, ρL, ρR, ζ, ∇ζ, ΣL, ΣR, η, ∇η, HL, HR, ε, ∇ε = x
+
+    ϵ = 1e-6
+    ρ⁻¹ = rinv(ρR, ϵ)
+    return Grassmann.project!(Δ[]*ρ⁻¹, AL)
+end

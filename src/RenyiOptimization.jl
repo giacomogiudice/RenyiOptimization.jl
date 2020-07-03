@@ -11,6 +11,7 @@ export udot, ⊙, rinv, paulimatrices
 using KrylovKit, OptimKit
 using TensorKit, TensorKitManifolds
 import TensorKitManifolds.Grassmann
+import OptimKit._precondition
 
 # Typedefs of the different tensors used
 const LocalOperator{S} = AbstractTensorMap{S,1,1}
