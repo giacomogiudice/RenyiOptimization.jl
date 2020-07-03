@@ -12,8 +12,8 @@ virt_spaces = (ℂ^2, ℂ^5, ℂ^4)
 anc_spaces = (ℂ^2, ℂ^3, ℂ^3)
 
 @testset "Fixed points tests for type $(T)" for T in (Float32, Float64, ComplexF32, ComplexF64)
-    tol = 10*eps(real(T))
-    testtol = 2*tol
+    tol = eps(real(T))
+    testtol = 100*tol
 
     @testset "Physical $(phys), virtual $(virt), ancillar $(anc)" for (phys, virt, anc) in zip(phys_spaces, virt_spaces, anc_spaces)
         AL = TensorMap(randisometry, T, virt ⊗ phys ⊗ anc ← virt)
@@ -63,8 +63,8 @@ end
 
 # Finite differences tests fail miserably with single-precision
 @testset "Manifold tests for type $(T)" for T in (Float64, ComplexF64)
-    tol = 10*eps(real(T))
-    testtol = 10*tol
+    tol = eps(real(T))
+    testtol = 100*tol
 
     @testset "Physical $(phys), virtual $(virt), ancillar $(anc)" for (phys, virt, anc) in zip(phys_spaces, virt_spaces, anc_spaces)
         AL = TensorMap(randisometry, T, virt ⊗ phys ⊗ anc ← virt)
@@ -102,7 +102,7 @@ end
         end
 
         @testset "Finite differences" begin
-            x = initialize(AL, H; tol = tol)
+            x = @inferred initialize(AL, H; tol = tol)
             αs = 10.0.^(-10:-4)
             αs, fs, dfs1, dfs2 = @inferred OptimKit.optimtest(fg, x; alpha = αs, retract = (x, ξ, α) -> retract(x, ξ, α; tol = tol), inner = inner)
             @test norm(dfs1 - dfs2, Inf) ≈ 0 atol = 1e-5    # Not very robust
