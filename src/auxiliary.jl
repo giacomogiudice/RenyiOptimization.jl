@@ -17,6 +17,7 @@ which decreases the condition number of ill-posed problems.
 """
 function rinv(t::AbstractTensorMap, ϵ::Real=eps(real(eltype(t))))
     U, Σ, V = tsvd(t)
-    Σ⁻ = (Σ^2 + ϵ^2*one(Σ))\Σ
-    return U*Σ⁻*V
+    Σ⁻¹ = (Σ^2 + ϵ^2*one(Σ))\Σ
+    return U*Σ⁻¹*V
 end
+

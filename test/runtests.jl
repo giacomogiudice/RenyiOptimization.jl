@@ -1,7 +1,7 @@
 using RenyiOptimization, TensorKit
 using Test, Random, LinearAlgebra
 
-using RenyiOptimization: initialize, fg, project!, inner, retract, transport
+using RenyiOptimization: initialize, lambdafg, betafg, project!, inner, retract, transport
 import OptimKit
 
 # Set seed for reproducibility
@@ -101,16 +101,28 @@ end
             end
         end
 
-        @testset "Finite differences" begin
+        @testset "Finite differences with β-optimization" begin
+            β = abs(rand(T))
             x = @inferred initialize(AL, H; tol = tol)
             αs = 10.0.^(-10:-4)
-            αs, fs, dfs1, dfs2 = @inferred OptimKit.optimtest(fg, x; alpha = αs, retract = (x, ξ, α) -> retract(x, ξ, α; tol = tol), inner = inner)
+            fg = x -> betafg(x, β)
+            _, fs, dfs1, dfs2 = @inferred OptimKit.optimtest(fg, x; alpha = αs, retract = (x, ξ, α) -> retract(x, ξ, α; tol = tol), inner = inner)
+            @test norm(dfs1 - dfs2, Inf) ≈ 0 atol = 1e-5    # Not very robust
+        end
+
+        @testset "Finite differences with λ-optimization" begin
+            λ = one(T)
+            ε₀ = abs(rand(T))
+            x = @inferred initialize(AL, H; tol = tol)
+            αs = 10.0.^(-10:-4)
+            fg = x -> lambdafg(x, λ, ε₀)
+            _, fs, dfs1, dfs2 = @inferred OptimKit.optimtest(fg, x; alpha = αs, retract = (x, ξ, α) -> retract(x, ξ, α; tol = tol), inner = inner)
             @test norm(dfs1 - dfs2, Inf) ≈ 0 atol = 1e-5    # Not very robust
         end
     end
 end
 
-@testset "Optimization tests for type $(T)" for T in (Float64, ComplexF64)
+@testset "Optimization for type $(T)" for T in (Float64, ComplexF64)
     tol = √eps(real(T))
     testtol = tol
     virt = phys = anc = ℂ^2
@@ -120,20 +132,19 @@ end
     AL = TensorMap(randisometry, T, virt ⊗ phys ⊗ anc ← virt)
     alg = OptimKit.LBFGS(20; maxiter = 1000, verbosity = 0, gradtol = tol)
     solvertol = 1e-3*tol
-    @testset "Optimization without preconditioner" begin
-        AL, output, ρL, ρR, _ = renyioptimize(1, H, AL, alg; preconditioner = false, tol = solvertol)
+    @testset "β-optimization with preconditioner = $(p)" for p in (true, false)
+        AL, output, ρL, ρR, _ = betaoptimize(1, H, AL, alg; preconditioner = p, tol = solvertol)
         @test output.f ≈ log(0.5) atol = testtol
         @test output.η ≈ 0.5 atol = testtol
         @test output.ε ≈ 0 atol = testtol
         @test norm(two_point_correlations(O, O, AL, 1:10, ρL, ρR) .- expectationvalue(O, AL, ρL, ρR)^2, Inf) ≈ 0 atol = testtol
     end
 
-    @testset "Optimization with preconditioner" begin
-        AL, output, ρL, ρR, _ = renyioptimize(1, H, AL, alg; preconditioner = true, tol = solvertol)
+    @testset "λ-optimization with preconditioner = $(p)" for p in (true, false)
+        AL, output, ρL, ρR, _ = lambdaoptimize(1, 0, H, AL, alg; preconditioner = p, tol = solvertol)
         @test output.f ≈ log(0.5) atol = testtol
         @test output.η ≈ 0.5 atol = testtol
         @test output.ε ≈ 0 atol = testtol
         @test norm(two_point_correlations(O, O, AL, 1:10, ρL, ρR) .- expectationvalue(O, AL, ρL, ρR)^2, Inf) ≈ 0 atol = testtol
     end
-
 end

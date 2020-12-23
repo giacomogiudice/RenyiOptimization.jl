@@ -5,8 +5,8 @@ export leftvirtual, rightvirtual, physical, ancillar, isleftgauged
 export lefttransfer, righttransfer, leftdoubletransfer, rightdoubletransfer
 export singlefixedpoints, doublefixedpoints, energyfixedpoints
 export expectationvalue, two_point_correlations
-export renyioptimize
-export udot, ⊙, rinv, paulimatrices
+export betaoptimize, lambdaoptimize
+export udot, ⊙, rinv
 
 using KrylovKit, OptimKit
 using TensorKit, TensorKitManifolds
