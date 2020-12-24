@@ -9,6 +9,7 @@
 
 !src
 !test
+!scripts
 
 # Other ignore rules
 **/.DS_Store
