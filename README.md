@@ -2,15 +2,14 @@
 
 [![CI][ci-img]][ci-url]
 [![codecov][codecov-img]][codecov-url]
+[![arXiv][arxiv-img]][arxiv-url]
 
 [ci-img]: https://github.com/giacomogiudice/RenyiOptimization.jl/workflows/CI/badge.svg
 [ci-url]: https://github.com/giacomogiudice/RenyiOptimization.jl/actions?query=workflow%3ACI
-
 [codecov-img]: https://codecov.io/gh/giacomogiudice/RenyiOptimization.jl/branch/master/graph/badge.svg?token=fQlukhogec
 [codecov-url]: https://codecov.io/gh/giacomogiudice/RenyiOptimization.jl/
-
-This package contains the code supporting [arXiv:2012.12848](https://arxiv.org/abs/2012.12848).
-
+[arxiv-img]: https://img.shields.io/badge/arXiv-2012.12848-B31B1B.svg
+[arxiv-url]: https://arxiv.org/abs/2012.12848
 
 The general idea is to optimize the _Rényi free energy_
 
@@ -19,6 +18,7 @@ The general idea is to optimize the _Rényi free energy_
 
 over a matrix-product-state purification of the density matrix.
 It leverages the [TensorKit.jl](https://github.com/Jutho/TensorKit.jl/) package for all tensor manipulations, and [OptimKit.jl](https://github.com/jutho/OptimKit.jl) for nonlinear optimization on Riemannian manifolds.
+See the [paper][arxiv-url] for more information.
 
 ## Installation
 
